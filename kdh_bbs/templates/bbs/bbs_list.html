@@ -1,0 +1,110 @@
+<!doctype html>
+<html>    
+    <head>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js";></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <title>BBS List</title>
+        <style>
+            body {margin:0; padding:0;}
+            main {text-align:center;}
+            #top_menu {margin:auto; width:45%; text-align:center;}
+            #top_menu div {display:inline;}
+            #top_menu button {margin:5px 0;}
+            .left {position:relative; left:-230px;}
+            .right {position:relative; right:-230px;}
+            button:hover {background-color:thistle;}
+            .link {background-color:blue; color:white; text-decoration:none; padding:5px;}
+            #userid {font-weight:bolder;}
+            table {border-collapse:collapse; margin:auto; background-color:rgba(0, 255, 242, 0.2);}
+            td, th {border:1px solid black; padding:10px;}
+            th {background-color:yellowgreen;}
+            tr:nth-child(odd) {background-color:rgb(221, 220, 220, 0.6);}
+            tr:not(:nth-child(1)):hover {background-color:skyblue;}
+            #title {width:350px;}
+            td a {text-decoration:none; color:blue;}
+            td a:hover {color:red;}
+            #s_form {margin-top:10px;}
+            #s_menu {position:relative; left:-10px; top:3px;}
+            #s_button {position:relative; right:-10px; top:1px;}
+            .page {text-decoration:none; color:blue;}
+            @media (min-width: 0px) {body {width:1920px;}}
+        </style>
+        <script>
+            $(function() {
+                if ($('#login').val()!='') {
+                    $('#login').css('display', 'none')
+                    $('#logout').css('display', 'inline')
+                    $('#regist').css('display', 'none')
+                }else{
+                    $('#userid').css('display', 'none')
+                    $('#logout').css('display', 'none')
+                }
+            })
+            function logout() {
+                alert('로그아웃 되었습니다')
+            }
+
+            function check() {
+                if ($('#login').val()=='') {
+                    alert('로그인 후 이용해주세요')
+                    location.href='/bbs/page/1'
+                }else {
+                    location.href='/bbs/write'
+                    }
+            }
+        </script>
+    </head>
+    <body>
+        <main>
+            <h2>게시판</h2>
+            <div id="top_menu">
+                <div><button class='link left' type='button' onclick="location.href='/bbs/login'" id='login' value='{{uid}}'>로그인</button></div>
+                <div><button class='link left' type='button' onclick="location.href='/bbs/regist'" id="regist">회원가입</button></div>
+                <span id='userid' class='left'>접속 아이디 : {{uid}}</span>
+                <div><button class='link left' type='button' onclick="location.href='/bbs/logout', logout()" id="logout">로그아웃</button></div>
+                <div><button class='link right' type='button' onclick="location.href='/bbs/page/1'">전체글보기</button></div>
+                <div><button class='link right' type='button' onclick="check()">새글입력</button></div>
+            </div>
+            <table>
+                <tr><th>글번호</th><th id='title'>글제목</th><th>작성자</th><th>작성일</th><th>첨부파일</th><th>조회수</th></tr>
+                {% for list in lists %}
+                <tr>
+                    <td>{{ list.num }}</td>
+                    <td><a href='/bbs/read/{{list.num}}'>{{ list.title }}</a></td>
+                    <td>{{ list.author }}</td>
+                    <td>{{ list.wdate }}</td>
+                    <td>{% for fname in flists %}
+                            {% if fname.num==list.num %}
+                                {{ fname.or_fname if fname.or_fname else '' }}<br>
+                            {% endif %}
+                        {% endfor %}</td>
+                    <td>{{ list.hitcnt }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% for i in range(num) %}
+            <a href='/bbs/page/{{i+1}}' class='page'>{{i+1}}</a>
+            {% endfor %}
+            <form action='/bbs/search1' method='post' id='s_form'>
+                <select name='s_menu' id='s_menu'>
+                    <option value='title'>제목</option>
+                    <option value='author'>작성자</option>
+                    <option value='content'>내용</option>
+                </select>
+                <input type='text' name='search' id='search'>
+                <button type='submit' id='s_button'>검색</button>
+            </form>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <script>
+                alert('{{message}}')
+            </script>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </main>
+    </body>
+</html>
